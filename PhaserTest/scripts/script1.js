@@ -13,7 +13,8 @@ function preload() {
     game.load.image('diamond', 'assets/diamond.png');
     game.load.image('firstaid','assets/firstaid.png');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-    game.load.spritesheet('john-left', 'assets/john-left.png',175,230);
+    // CHANGES
+    game.load.spritesheet('john-right', 'assets/john-left.png',175,230);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 30);
 }
 
@@ -122,7 +123,8 @@ function SegmentOne(){
 
 function createPlayer(){
     //sprite: placeHolder
-    player = game.add.sprite(200, game.world.height - 150, 'dude');
+    // CHANGES
+    player = game.add.sprite(200, game.world.height - 150, 'john-right');
     //physics
     game.physics.arcade.enable(player);
     game.physics.arcade.collide(player, platforms);
