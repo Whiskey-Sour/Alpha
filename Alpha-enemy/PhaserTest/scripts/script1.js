@@ -105,6 +105,7 @@ function SegmentOne(){
     var ledge3 = platforms.create(0, 900 - 400, 'ground');
     ledge3.body.immovable = true;
 
+
     var ledge4 = platforms.create(500, 900 - 550, 'ground');
     ledge4.body.immovable = true;
     ledge4.scale.setTo(0.75,1);
@@ -112,11 +113,11 @@ function SegmentOne(){
     var borderLeft=botBoundaries.create(500-200,900-580,'ground');
     borderLeft.body.immovable = true;
     borderLeft.scale.setTo(0.5,1);
-    borderLeft.renderable=false;
+    //borderLeft.renderable=false;
     var borderRight=botBoundaries.create(800, 900-580,'ground');
     borderRight.body.immovable = true;
     borderRight.scale.setTo(0.5,1);
-    borderRight.renderable=false;
+    //borderRight.renderable=false;
 
 
 }
