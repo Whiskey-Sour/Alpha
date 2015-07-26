@@ -55,7 +55,7 @@ var Play = function () {
         cameraUpdate();
         playerCollision();
         bulletsUpdate();
-       if(player.lives!==oldLives){
+        if(player.lives!==oldLives){
             destroyGroup(lives);
             drawHearts();
         }
@@ -296,9 +296,9 @@ var Play = function () {
         game.physics.arcade.overlap(bullets, bots, hitBot, null, this);
         game.physics.arcade.overlap(platforms, bots, hitWall, null, this);
         for(var i in bullets.children){
-           if(bullets.children[i].body.touching.left || bullets.children[i].body.touching.right ){
-               bullets.children[i].kill();
-           }
+            if(bullets.children[i].body.touching.left || bullets.children[i].body.touching.right ){
+                bullets.children[i].kill();
+            }
         }
     }
 
