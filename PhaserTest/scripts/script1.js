@@ -16,6 +16,7 @@ var Play = function () {
         game.load.image('star', 'assets/star.png');
         game.load.image('diamond', 'assets/diamond.png');
         game.load.image('firstaid','assets/firstaid.png');
+        game.load.image('background','assets/background.png');
         game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
         game.load.spritesheet('john', 'assets/john-short-new.png', 158.5, 225);
         game.load.spritesheet('robot', 'assets/robot.png', 96, 202);
@@ -30,7 +31,8 @@ var Play = function () {
         bots,
         bot,
         velocityScale=175,
-        botBoundary,
+        bullets,
+        lives,
         botBoundaries;
 
     function create() {
@@ -38,20 +40,32 @@ var Play = function () {
         createPlatforms();
         createPlayer();
         createBonus();
-
+        createBullets();
+        createHearts();
+        drawHearts();
         createBot(550,900-650);
     }
     var controller,
         canJump=true;
     function update() {
+        var oldLives=player.lives;
         createController();
         playerUpdate();
         botsUpdate();
         cameraUpdate();
         playerCollision();
+        bulletsUpdate();
+       if(player.lives!==oldLives){
+            destroyGroup(lives);
+            drawHearts();
+        }
         //console.log(player.body.gravity.y);
     }
-
+    function destroyGroup(group){
+        for(var i in group.children){
+            group.children[i].kill();
+        }
+    }
     function createWorld(){
 
         //worldSize
@@ -61,8 +75,8 @@ var Play = function () {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //BackGround
-        background = game.add.sprite(0, 0, 'sky');
-        background.scale.setTo(3,1.5);
+        background = game.add.sprite(0, 0, 'background');
+        background.scale.setTo(3,1.1);
 
         //PlaceHolder
 
@@ -96,6 +110,22 @@ var Play = function () {
         var codeBonus=bonus.create(700,900 - 600,'star');
 
     }
+
+    function createBullets(){
+        bullets=game.add.group();
+        bullets.enableBody=true;
+    }
+
+    function bullet(){
+        var dir=player.body.velocity.x>=0 ? 1:-1;
+        var bullet=bullets.create(player.x+30*dir,player.y+30,'star');
+        game.physics.arcade.enable(bullet);
+        bullet.body.velocity.x=300*dir;
+        player.lives -=1;
+
+        //return bullet;
+    }
+
 
     function SegmentOne(){
         createLedgeWithBorders(400, 900 - 200);
@@ -155,6 +185,7 @@ var Play = function () {
         player.score=0;
 
     }
+
     function createBot(x,y){
         if(!bots){
             createBots();
@@ -172,15 +203,30 @@ var Play = function () {
         bots.add(bot);
 
     }
+
     function createBots(){
         bots=game.add.group();
         bots.enableBody=true;
     }
+
+    function createHearts(){
+        lives=game.add.group();
+        lives.enableBody=true;
+
+    }
+    function drawHearts(){
+        for(var i= 0; i<player.lives; i+=1){
+            var obj=lives.create(i*50, 20, 'firstaid');
+            obj.fixedToCamera=true;
+        }
+    }
+
     function createController(){
         controller=game.input.keyboard.createCursorKeys();
         controller.fire=game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     }
-
+    var timer=0;
+    var reload=5;
     function playerUpdate(){
         //collide with ground and platforms
         game.physics.arcade.collide(player, platforms);
@@ -207,6 +253,12 @@ var Play = function () {
             //  Stand still
             player.animations.play('idle');
         }
+
+        if(controller.fire.isDown && timer>=10){
+            bullet();
+            timer=0;
+        }
+        timer +=1;
         //movement jump
         //prevent continuous jumping
         if(player.body.touching.down && !controller.up.isDown){
@@ -230,6 +282,7 @@ var Play = function () {
         }
 
     }
+
     function botsUpdate(){
         game.physics.arcade.collide(bots, platforms);
         game.physics.arcade.collide(botBoundaries, bots);
@@ -237,6 +290,18 @@ var Play = function () {
             botUpdate(bots.children[i]);
         }
     }
+
+    function bulletsUpdate(){
+        game.physics.arcade.collide(bullets,platforms);
+        game.physics.arcade.overlap(bullets, bots, hitBot, null, this);
+        game.physics.arcade.overlap(platforms, bots, hitWall, null, this);
+        for(var i in bullets.children){
+           if(bullets.children[i].body.touching.left || bullets.children[i].body.touching.right ){
+               bullets.children[i].kill();
+           }
+        }
+    }
+
     function botUpdate(bot){
         //check for ledge
 
@@ -270,6 +335,19 @@ var Play = function () {
         player.score +=10;
         //console.log(player.score);
     }
+
+    function hitBot(bullet,bot){
+        bullet.kill();
+        bot.kill();
+        player.score +=10;
+        //console.log(player.score);
+    }
+
+    function hitWall(bullet,plat){
+        bullet.kill();
+        //console.log(player.score);
+    }
+
 
     function die(player,bot){
         player.kill();
